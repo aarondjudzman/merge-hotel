@@ -1,8 +1,12 @@
 package main
 
 import (
-	"ascenda-hotel/entity"
 	"context"
+
+	"ascenda-hotel/entity"
+
+	"github.com/rs/zerolog/log"
+	"github.com/sourcegraph/conc/pool"
 )
 
 // HotelSupplier is an interface that defines the methods for fetching hotel data from a supplier.
@@ -29,7 +33,31 @@ func NewUsecaseImpl(supplierRegistry map[string]HotelSupplier) *UsecaseImpl {
 }
 
 func (u *UsecaseImpl) GetHotels(ctx context.Context, hotelIDs []string, destinationID int) ([]entity.Hotel, error) {
-	// TODO: implement the business logic of getting hotels data.
+	// concurrently fetch data from all suppliers
+	p := pool.NewWithResults[[]entity.Hotel]()
+	for _, supplier := range u.supplierRegistry {
+		supplier := supplier // capture the loop variable
+		p.Go(func() []entity.Hotel {
+			logger := log.With().Str("supplier", supplier.GetName()).Logger()
+			logger.Debug().Msgf("Fetching hotels from supplier %s", supplier.GetName())
+			supplierHotels, err := supplier.FetchHotels(ctx, hotelIDs, destinationID)
+			if err != nil {
+				// if there is any error when fetching hotels from a supplier, we log it and return an empty slice
+				// we do not return an error here because we want to continue fetching hotels from other suppliers
+				logger.Error().Err(err).Msgf("Failed to fetch hotels from supplier %s", supplier.GetName())
+				return []entity.Hotel{}
+			}
 
-	return []entity.Hotel{}, nil
+			return supplierHotels
+		})
+	}
+	results := p.Wait()
+
+	// flatten the results into a single slice
+	var allHotels []entity.Hotel
+	for _, supplierHotels := range results {
+		allHotels = append(allHotels, supplierHotels...)
+	}
+
+	return allHotels, nil
 }
