@@ -62,7 +62,8 @@ func (u *UsecaseImpl) GetHotels(ctx context.Context, hotelIDs []string, destinat
 		allHotels = append(allHotels, supplierHotels...)
 	}
 
-	return allHotels, nil
+	// uniquely merge the data from all suppliers and return the final list
+	return mergeHotelData(allHotels), nil
 }
 
 // cleanHotelData performs some basic cleaning on the hotel data before returning it to the caller.
@@ -83,4 +84,31 @@ func cleanHotelData(hotels []entity.Hotel) []entity.Hotel {
 	}
 
 	return hotels
+}
+
+// mergeHotelData uniquely merges the hotel data from all suppliers to remove duplicates.
+// This is done using hotel IDs as the key.
+func mergeHotelData(hotels []entity.Hotel) []entity.Hotel {
+	// create a map to hold aggregated hotel data
+	// the key is the hotel ID, and the value is the hotel data
+	aggregatedHotels := make(map[string]entity.Hotel)
+	for _, hotel := range hotels {
+		// check if the hotel already exists in the map
+		if existingHotel, exists := aggregatedHotels[hotel.ID]; exists {
+			// merge data if hotel already exists in the map.
+			// merging rules are defined in the data model layer.
+			aggregatedHotels[hotel.ID] = entity.MergeHotelData(existingHotel, hotel)
+		} else {
+			// add new hotel to the map if it doesn't exist
+			aggregatedHotels[hotel.ID] = hotel
+		}
+	}
+
+	// convert the map back to a slice
+	finalHotels := make([]entity.Hotel, 0, len(aggregatedHotels))
+	for _, hotel := range aggregatedHotels {
+		finalHotels = append(finalHotels, hotel)
+	}
+
+	return finalHotels
 }
