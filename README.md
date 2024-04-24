@@ -3,10 +3,18 @@
 This is a simple hotel booking system that allows users to search for hotels and book them. It uses a combination of APIs to fetch hotel data from different sources and merges it into a single data model.
 
 ## Table of Contents
-1. [API Documentation](#api-documentation)
-2. [Run Production Web Server Locally](#run-production-web-server-locally)
-3. [Run Development Web Server Locally](#run-development-web-server-locally)
-4. [Design Specification](#design-specification)
+1. [Deployement Demo](#deployement-demo)
+2. [API Documentation](#api-documentation)
+3. [Run Production Web Server Locally](#run-production-web-server-locally)
+4. [Run Development Web Server Locally](#run-development-web-server-locally)
+5. [Design Specification](#design-specification)
+
+## Deployment Demo
+Deployment demo is hosted on https://merge-hotel.fly.dev
+Example request:
+```
+curl https://merge-hotel.fly.dev/hotels
+```
 
 ## API Documentation
 ### GET `/hotels`
