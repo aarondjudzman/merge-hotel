@@ -38,12 +38,17 @@ func MergeHotelData(existingHotel Hotel, newHotel Hotel) Hotel {
 	// concatenate hotel descriptions
 	existingHotel.Description = existingHotel.Description + " " + newHotel.Description
 
-	// for amenities, we follow two simple rules:
-	// 		we remove duplicates from the each categories.
-	// 		if there are also duplicates across both general and room amenities, we prioritise the general amenity
+	// for amenities, we follow three simple rules:
+	// 		- we remove duplicates from the each categories.
+	// 	    - some supplier may also return amenities in the form of concatenated strings
+	// 		  e.g. "DryCleaning, BathTub", while others return as "dry cleaning, bath tub"
+	// 		  we will check for duplicates such as "dry cleaning" and "drycleaning" and remove the duplicates,
+	// 		  prioritising the one with space in between
+	// 		- if there are also duplicates across both general and room amenities, we prioritise the room amenity
+
 	existingHotel.Amenities.General = uniquelyMergeTwoLists(existingHotel.Amenities.General, newHotel.Amenities.General)
 	existingHotel.Amenities.Room = uniquelyMergeTwoLists(existingHotel.Amenities.Room, newHotel.Amenities.Room)
-	existingHotel.Amenities.Room = uniqueRoomAmenities(existingHotel.Amenities.Room, existingHotel.Amenities.General)
+	existingHotel.Amenities.General = removeRoomAmenities(existingHotel.Amenities.Room, existingHotel.Amenities.General)
 
 	// concatenate images and deduplicate
 	existingHotel.Images.Amenities = mergeImages(existingHotel.Images.Amenities, newHotel.Images.Amenities)
@@ -72,40 +77,51 @@ func countDecimalPlaces(value float64) int {
 
 // uniquelyMergeTwoLists combines two lists of amenities, removing duplicates.
 func uniquelyMergeTwoLists(list1, list2 []string) []string {
-	amenitySet := make(map[string]struct{}) // using empty struct because it occupies no space, suitable when just checking if the key exists
+	amenitySet := make(map[string]string) // Map to hold the normalized string as key and preferred format as value
 
-	// add list1 to the map
-	for _, amenity := range list1 {
-		amenitySet[amenity] = struct{}{}
+	// function to add items to the map
+	addAmenities := func(list []string) {
+		for _, amenity := range list {
+			normalized := strings.ToLower(strings.ReplaceAll(amenity, " ", "")) // normalize the string by removing spaces and converting to lowercase
+			if existing, exists := amenitySet[normalized]; exists {
+				// check if the current entry has spaces and the existing one does not, replace it
+				if strings.Contains(amenity, " ") && !strings.Contains(existing, " ") {
+					amenitySet[normalized] = amenity
+				}
+			} else {
+				// if it doesn't exist, add the new item
+				amenitySet[normalized] = amenity
+			}
+		}
 	}
-	// add list2 to the map
-	for _, amenity := range list2 {
-		amenitySet[amenity] = struct{}{}
-	}
+
+	// add both lists to the map
+	addAmenities(list1)
+	addAmenities(list2)
 
 	// convert the map to a slice
 	mergedList := make([]string, 0, len(amenitySet))
-	for amenity := range amenitySet {
+	for _, amenity := range amenitySet {
 		mergedList = append(mergedList, amenity)
 	}
 
 	return mergedList
 }
 
-// uniqueRoomAmenities checks if room amenities already exists in the general amenities list and returns a new list with only unique amenities.
-func uniqueRoomAmenities(roomAmenities, generalAmenities []string) []string {
-	generalAmenitiesMap := make(map[string]bool)
-	for _, amenity := range generalAmenities {
-		generalAmenitiesMap[amenity] = true
+// removeRoomAmenities checks if general amenities already exists in the room amenities list and returns a new list with only unique amenities.
+func removeRoomAmenities(roomAmenities, generalAmenities []string) []string {
+	roomAmenitiesMap := make(map[string]bool)
+	for _, amenity := range roomAmenities {
+		roomAmenitiesMap[amenity] = true
 	}
 
-	var uniqueRoom []string
-	for _, amenity := range roomAmenities {
-		if !generalAmenitiesMap[amenity] {
-			uniqueRoom = append(uniqueRoom, amenity)
+	var uniqueGeneral []string
+	for _, amenity := range generalAmenities {
+		if !roomAmenitiesMap[amenity] {
+			uniqueGeneral = append(uniqueGeneral, amenity)
 		}
 	}
-	return uniqueRoom
+	return uniqueGeneral
 }
 
 // mergeImages deduplicates and merges two slices of Images.
