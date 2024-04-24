@@ -5,6 +5,7 @@ go 1.22.0
 require (
 	github.com/carlmjohnson/requests v0.23.5
 	github.com/gin-gonic/gin v1.9.1
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/rs/zerolog v1.32.0
 	github.com/sourcegraph/conc v0.3.0
 	gopkg.in/yaml.v3 v3.0.1

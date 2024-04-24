@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"ascenda-hotel/cache"
 	"ascenda-hotel/supplier"
 
 	"github.com/gin-gonic/gin"
@@ -21,8 +22,8 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to load configuration file")
 	}
 
-	// set up the service layer with the suppliers registry
-	hotelService := NewUsecaseImpl(setupSupplierRegistry(cfg))
+	// set up the service layer with the suppliers registry and in memory cache
+	hotelService := NewUsecaseImpl(setupSupplierRegistry(cfg), cache.NewInMemoryCache())
 	// set up the handler layer
 	handler := NewHandler(hotelService)
 	// set up the router
