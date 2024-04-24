@@ -7,3 +7,11 @@ func derefFloat64(f *float64) float64 {
 	}
 	return 0
 }
+
+// derefString safely dereferences a string pointer, returning an empty string if the pointer is nil.
+func derefString(s *string) string {
+	if s != nil {
+		return *s
+	}
+	return ""
+}
