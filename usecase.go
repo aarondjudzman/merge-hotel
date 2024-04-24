@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 
 	"ascenda-hotel/entity"
 
@@ -48,7 +49,9 @@ func (u *UsecaseImpl) GetHotels(ctx context.Context, hotelIDs []string, destinat
 				return []entity.Hotel{}
 			}
 
-			return supplierHotels
+			// clean the hotel data before returning it
+			// doing this in service layer so that all the suppliers can use the same cleaner
+			return cleanHotelData(supplierHotels)
 		})
 	}
 	results := p.Wait()
@@ -60,4 +63,24 @@ func (u *UsecaseImpl) GetHotels(ctx context.Context, hotelIDs []string, destinat
 	}
 
 	return allHotels, nil
+}
+
+// cleanHotelData performs some basic cleaning on the hotel data before returning it to the caller.
+func cleanHotelData(hotels []entity.Hotel) []entity.Hotel {
+	for i, hotel := range hotels {
+		// sanitize whitespace from hotel data
+		hotels[i] = entity.TrimSpaceFromHotel(hotel)
+
+		// for hotel amenities, each supplier may have a different naming style.
+		// e.g. WiFi, Wifi, wifi, etc..
+		// we need to normalize the names to a common format of all lowercase
+		for i, amenity := range hotel.Amenities.General {
+			hotel.Amenities.General[i] = strings.ToLower(amenity)
+		}
+		for i, amenity := range hotel.Amenities.Room {
+			hotel.Amenities.Room[i] = strings.ToLower(amenity)
+		}
+	}
+
+	return hotels
 }
