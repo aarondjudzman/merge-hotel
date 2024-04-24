@@ -1,10 +1,10 @@
-package main
+package entity
 
 // Hotel represents the data model for a hotel.
 // This data model is based on the response format for our API.
 type Hotel struct {
 	ID                string    `json:"id"`
-	DestinationID     string    `json:"destination_id"`
+	DestinationID     int       `json:"destination_id"`
 	Name              string    `json:"name"`
 	Location          Location  `json:"location"`
 	Description       string    `json:"description"`
@@ -13,6 +13,7 @@ type Hotel struct {
 	BookingConditions []string  `json:"booking_conditions"`
 }
 
+// Location represents the location details of a hotel.
 type Location struct {
 	Latitude  float64 `json:"lat"`
 	Longitude float64 `json:"lng"`
@@ -21,6 +22,7 @@ type Location struct {
 	Country   string  `json:"country"`
 }
 
+// Amenities represents the amenities offered at a hotel. It contains two slices: General and Room.
 type Amenities struct {
 	General []string `json:"general"`
 	Room    []string `json:"room"`
