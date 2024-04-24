@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"ascenda-hotel/entity"
+	"merge-hotel/entity"
 )
 
 const (

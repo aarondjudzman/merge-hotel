@@ -3,7 +3,7 @@ package supplier
 import (
 	"testing"
 
-	"ascenda-hotel/entity"
+	"merge-hotel/entity"
 
 	"github.com/efficientgo/core/testutil"
 )

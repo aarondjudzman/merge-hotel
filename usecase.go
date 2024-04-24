@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"ascenda-hotel/entity"
+	"merge-hotel/entity"
 
 	"github.com/rs/zerolog/log"
 	"github.com/sourcegraph/conc/pool"

@@ -1,10 +1,10 @@
 package supplier
 
 import (
-	"ascenda-hotel/entity"
 	"context"
 	"encoding/json"
 	"errors"
+	"merge-hotel/entity"
 	"net/http"
 	"strconv"
 	"time"

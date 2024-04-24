@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"ascenda-hotel/entity"
+	"merge-hotel/entity"
 
 	"github.com/efficientgo/core/testutil"
 )

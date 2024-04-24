@@ -1,4 +1,4 @@
-module ascenda-hotel
+module merge-hotel
 
 go 1.22.0
 

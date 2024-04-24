@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"ascenda-hotel/entity"
+	"merge-hotel/entity"
 
 	"github.com/carlmjohnson/requests"
 )

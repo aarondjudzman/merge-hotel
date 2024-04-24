@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"ascenda-hotel/cache"
-	"ascenda-hotel/supplier"
+	"merge-hotel/cache"
+	"merge-hotel/supplier"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
