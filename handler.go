@@ -80,5 +80,8 @@ func (h *Handler) GetHotels(c *gin.Context) {
 		return
 	}
 
+	// Set Cache-Control headers
+	c.Header("Cache-Control", "public, max-age=60")
+
 	c.JSON(http.StatusOK, results)
 }
