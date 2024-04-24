@@ -43,11 +43,7 @@ func MergeHotelData(existingHotel Hotel, newHotel Hotel) Hotel {
 	// 		if there are also duplicates across both general and room amenities, we prioritise the general amenity
 	existingHotel.Amenities.General = uniquelyMergeTwoLists(existingHotel.Amenities.General, newHotel.Amenities.General)
 	existingHotel.Amenities.Room = uniquelyMergeTwoLists(existingHotel.Amenities.Room, newHotel.Amenities.Room)
-	generalAmenitiesMap := make(map[string]bool)
-	for _, amenity := range existingHotel.Amenities.General {
-		generalAmenitiesMap[amenity] = true
-	}
-	existingHotel.Amenities.Room = uniqueRoomAmenities(newHotel.Amenities.Room, generalAmenitiesMap)
+	existingHotel.Amenities.Room = uniqueRoomAmenities(existingHotel.Amenities.Room, existingHotel.Amenities.General)
 
 	// concatenate images and deduplicate
 	existingHotel.Images.Amenities = mergeImages(existingHotel.Images.Amenities, newHotel.Images.Amenities)
@@ -96,11 +92,16 @@ func uniquelyMergeTwoLists(list1, list2 []string) []string {
 	return mergedList
 }
 
-// uniqueRoomAmenities removes duplicates from the roomAmenities list and returns a new list with only unique amenities.
-func uniqueRoomAmenities(roomAmenities []string, generalSet map[string]bool) []string {
+// uniqueRoomAmenities checks if room amenities already exists in the general amenities list and returns a new list with only unique amenities.
+func uniqueRoomAmenities(roomAmenities, generalAmenities []string) []string {
+	generalAmenitiesMap := make(map[string]bool)
+	for _, amenity := range generalAmenities {
+		generalAmenitiesMap[amenity] = true
+	}
+
 	var uniqueRoom []string
 	for _, amenity := range roomAmenities {
-		if !generalSet[amenity] {
+		if !generalAmenitiesMap[amenity] {
 			uniqueRoom = append(uniqueRoom, amenity)
 		}
 	}
